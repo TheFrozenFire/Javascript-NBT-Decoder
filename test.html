@@ -1,0 +1,16 @@
+<html>
+	<head>
+		<script type="text/javascript" src="NBT.js"></script>
+		<script type="text/javascript">
+			function loadNBTFile(fileSelect) {
+				var file = fileSelect.files[0];
+				var nbtfile = file.getAsBinary();
+				var nbt = new NBT(nbtfile);
+				eval(0);
+			}
+		</script>
+	</head>
+	<body>
+		<input type="file" id="nbtfile" name="file" onchange="loadNBTFile(this)" />
+	</body>
+</html>
