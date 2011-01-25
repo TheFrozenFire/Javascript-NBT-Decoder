@@ -81,9 +81,19 @@ NBT = function(nbtfile) {
 			case this.tags.TAG_INT:
 				return this.binary.toInt(nbtfile.read(4));
 			case this.tags.TAG_LONG:
-				var string = nbtfile.read(8);
-				var bigInt = bigInt2str(, 10);
-				return bigInt;
+				var firstHalf = int2bigInt(this.binary.toDWord(nbtfile.read(4)), 4);
+				var secondHalf = int2bigInt(this.binary.toDWord(nbtfile.read(4)), 4);
+				var bitShift = str2bigInt("4294967296", 10);
+				var shiftedFirst = mult(firstHalf, bitShift);
+				var bigInt = add(secondHalf, shiftedFirst);
+				var unSignSize = str2bigInt("9223372036854775808", 10);
+				var signSize = str2bigInt("18446744073709551616", 10);
+				if(equals(bigInt, unSignSize) || greater(bigInt, unSignSize)) {
+					var reduced = sub(bigInt, signSize);
+					bigInt = reduced;
+				}
+				var bigIntString = bigInt2str(bigInt, 10);
+				return bigIntString;
 			case this.tags.TAG_FLOAT:
 				return this.binary.toFloat(nbtfile.read(4));
 			case this.tags.TAG_DOUBLE:
