@@ -6,11 +6,15 @@
 				var file = fileSelect.files[0];
 				var nbtfile = file.getAsBinary();
 				var nbt = new NBT(nbtfile);
-				eval(0);
+				
+				var resultDiv = document.getElementById("result");
+				resultDiv.innerHTML = nbt.root[0].toSource();
 			}
 		</script>
 	</head>
 	<body>
-		<input type="file" id="nbtfile" name="file" onchange="loadNBTFile(this)" />
+		<input type="file" id="nbtfile" name="file" />
+		<input type="submit" onclick="loadNBTFile(document.getElementById('nbtfile'))" value="Process NBT" />
+		<div id="result"></div>
 	</body>
 </html>

@@ -14,13 +14,13 @@ if(typeof(GZip) == "undefined") {
 	GZipScript.type = "text/javascript";
 	head.appendChild(GZipScript);
 }
-// Include bigInt - Javascript lacks the ability to handle 64-bit integers, so we must use an AP math library.
-if(typeof(bigInt) == "undefined") {
+// Include BigNumber - Javascript lacks the ability to handle 64-bit integers, so we must use an AP math library.
+if(typeof(BigNumber) == "undefined") {
 	var head = document.getElementsByTagName("head")[0];
-	var bigIntScript = document.createElement("script");
-	bigIntScript.src = "BigInt.js";
-	bigIntScript.type = "text/javascript";
-	head.appendChild(bigIntScript);
+	var BigNumberScript = document.createElement("script");
+	BigNumberScript.src = "bignumber.js";
+	BigNumberScript.type = "text/javascript";
+	head.appendChild(BigNumberScript);
 }
 
 NBT = function(nbtfile) {
@@ -81,19 +81,15 @@ NBT = function(nbtfile) {
 			case this.tags.TAG_INT:
 				return this.binary.toInt(nbtfile.read(4));
 			case this.tags.TAG_LONG:
-				var firstHalf = int2bigInt(this.binary.toDWord(nbtfile.read(4)), 4);
-				var secondHalf = int2bigInt(this.binary.toDWord(nbtfile.read(4)), 4);
-				var bitShift = str2bigInt("4294967296", 10);
-				var shiftedFirst = mult(firstHalf, bitShift);
-				var bigInt = add(secondHalf, shiftedFirst);
-				var unSignSize = str2bigInt("9223372036854775808", 10);
-				var signSize = str2bigInt("18446744073709551616", 10);
-				if(equals(bigInt, unSignSize) || greater(bigInt, unSignSize)) {
-					var reduced = sub(bigInt, signSize);
-					bigInt = reduced;
-				}
-				var bigIntString = bigInt2str(bigInt, 10);
-				return bigIntString;
+				var firstHalf = new BigNumber(this.binary.toDWord(nbtfile.read(4)));
+				var secondHalf = new BigNumber(this.binary.toDWord(nbtfile.read(4)));
+				var result = secondHalf.add(firstHalf.multiply(4294967296));
+				var signCheck = new BigNumber(2);
+				signCheck = signCheck.pow(63);
+				var signSub = new BigNumber(2);
+				signSub = signSub.pow(64);
+				if(result.compare(signCheck) >= 0) result = result.subtract(signSub);
+				return result;
 			case this.tags.TAG_FLOAT:
 				return this.binary.toFloat(nbtfile.read(4));
 			case this.tags.TAG_DOUBLE:
